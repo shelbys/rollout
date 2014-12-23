@@ -112,7 +112,7 @@ Rollout.prototype.active = function(feature) {
     throw new Error("The .active() method needs a feature name as it's first parameter.");
   }
 
-  return this.group('all').activate(feature);
+  return this.group('all').active(feature);
 };
 
 /**
