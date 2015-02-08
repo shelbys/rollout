@@ -106,8 +106,6 @@ Rollout.prototype.namespace = function(name) {
  */
 
 Rollout.prototype.active = function(feature) {
-  var self = this;
-  
   if (arguments.length === 0) {
     throw new Error("The .active() method needs a feature name as it's first parameter.");
   }
@@ -131,8 +129,6 @@ Rollout.prototype.user = function(user) {
  */
 
 Rollout.prototype.group = function(name, fn) {
-  var self = this;
-
   if (fn) {
     if ('function' !== typeof fn) {
       throw new Error("Expected .group()'s second param to be a function.");
@@ -141,11 +137,10 @@ Rollout.prototype.group = function(name, fn) {
     var group = Group.create(name, this);
     this._groups[name] = group;
 
-    self.client.sadd(self.name('rollout:groups'), name, function(err, result) {});
     return group;
   }
 
-  return this._groups[name];  
+  return this._groups[name];
 };
 
 /**

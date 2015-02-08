@@ -13,6 +13,20 @@ describe('groups', function() {
     assert(Group.create(1,2) instanceof Group);
   });
 
+  it('should add the group to the set', function(done) {
+    var rollout = Rollout.create();
+    Group.create('testGroup', rollout);
+
+    setTimeout(function() {
+      var name = rollout.name('rollout:groups');
+      rollout.client.sismember(name, 'testGroup', function(err, result) {
+        result === 1
+          ? done()
+          : done(false);
+      });
+    }, 10);
+  });
+
   it('should throw without two params', function() {
     assert.throws(function() {
       Group.create();
