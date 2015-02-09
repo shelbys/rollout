@@ -30,7 +30,13 @@ function Rollout(client) {
   this._namespace = null;
   this._groups    = {};
 
-  this.group('all', function(user) { return true; });
+  this.group('all', function(user, callback) {
+    if (callback) {
+      callback(null, true);
+    } else {
+      return true;
+    }
+  });
 }
 
 /**
@@ -88,7 +94,13 @@ Rollout.prototype.namespace = function(name) {
   this._namespace = name;
 
   // Redefine the :all group.
-  this.group('all', function(user) { return true; });
+  this.group('all', function(user, callback) {
+    if (callback) {
+      callback(null, true);
+    } else {
+      return true;
+    }
+  });
 
   return this;
 };
@@ -135,6 +147,7 @@ Rollout.prototype.group = function(name, fn) {
     }
 
     var group = Group.create(name, this);
+    group.fn(fn);
     this._groups[name] = group;
 
     return group;
@@ -179,26 +192,26 @@ Rollout.prototype.deactivate = function(feature) {
     });
   }).then(function() {
 
-    var fns    = [];
+      var fns    = [];
 
-    for(var key in self._groups) {
-      var group = self._groups[key];
-      fns.push(function(cb) {
-        var name = self.name('rollout:groups:' + group.name);
-        self.client.srem(name, feature, function(err, result) {
-          cb(err);
+      for(var key in self._groups) {
+        var group = self._groups[key];
+        fns.push(function(cb) {
+          var name = self.name('rollout:groups:' + group.name);
+          self.client.srem(name, feature, function(err, result) {
+            cb(err);
+          });
+        });
+      }
+
+      return new Promise(function(resolve, reject) {
+        async.parallel(fns, function(err, results) {
+          if (err) {
+            return reject(err);
+          }
+
+          resolve();
         });
       });
-    }
-
-    return new Promise(function(resolve, reject) {
-      async.parallel(fns, function(err, results) {
-        if (err) {
-          return reject(err);
-        }
-
-        resolve();
-      });
     });
-  });
 };
