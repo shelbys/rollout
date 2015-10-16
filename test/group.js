@@ -102,6 +102,33 @@ describe('groups', function() {
       }.bind(this));
     });
 
+    describe('nested', function() {
+      beforeEach(function(callback) {
+        var name1 = this.rollout.name('rollout:groups:' + this.group.name);
+        this.rollout.client.sadd(name1, 'nestedGroup', function(err) {
+          var name2 = this.rollout.name('rollout:groups:' + 'nestedGroup');
+          this.rollout.client.sadd(name2, 'subNestedGroup', function(err) {
+            var name3 = this.rollout.name('rollout:groups:' + 'subNestedGroup');
+            this.rollout.client.sadd(name3, 'nestedFeature', callback);
+          }.bind(this));
+        }.bind(this));
+      });
+
+      it('should return true with existing feature nested in Group', function(done) {
+        this.group.active('nestedFeature').then(function(enabled) {
+          assert.equal(enabled, true);
+          done();
+        });
+      });
+
+      it('should return false with non-existing feature throughout nested Groups', function(done) {
+        this.group.active('missingNestedFeature').then(function(enabled) {
+          assert.equal(enabled, false);
+          done();
+        });
+      });
+    });
+
   });
 
   describe('.activate()', function() {
