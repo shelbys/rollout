@@ -104,12 +104,15 @@ describe('groups', function() {
 
     describe('nested', function() {
       beforeEach(function(callback) {
-        var name1 = this.rollout.name('rollout:groups:' + this.group.name);
-        this.rollout.client.sadd(name1, 'nestedGroup', function(err) {
-          var name2 = this.rollout.name('rollout:groups:' + 'nestedGroup');
-          this.rollout.client.sadd(name2, 'subNestedGroup', function(err) {
-            var name3 = this.rollout.name('rollout:groups:' + 'subNestedGroup');
-            this.rollout.client.sadd(name3, 'nestedFeature', callback);
+        var name0 = this.rollout.name('rollout:groups');
+        this.rollout.client.sadd(name0, ['nestedGroup', 'subNestedGroup'], function(err) {
+          var name1 = this.rollout.name('rollout:groups:' + this.group.name);
+          this.rollout.client.sadd(name1, 'nestedGroup', function(err) {
+            var name2 = this.rollout.name('rollout:groups:' + 'nestedGroup');
+            this.rollout.client.sadd(name2, 'subNestedGroup', function(err) {
+              var name3 = this.rollout.name('rollout:groups:' + 'subNestedGroup');
+              this.rollout.client.sadd(name3, 'nestedFeature', callback);
+            }.bind(this));
           }.bind(this));
         }.bind(this));
       });
